@@ -1,6 +1,6 @@
 import { api, authConfig } from '../api/axios';
 import type {AxiosResponse } from 'axios';
-import type { Movie } from '../types/movieKUYGT';
+import type { Movie } from '../types/movie';
 
 export interface FetchMoviesResponse {
   page: number;
