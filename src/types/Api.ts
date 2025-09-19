@@ -1,4 +1,4 @@
-import type { Movie } from './Movie';
+import type { Movie } from './movie';
 
 export interface FetchMoviesParams {
   query?: string;
