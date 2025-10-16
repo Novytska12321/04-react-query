@@ -1,8 +1,5 @@
-import axios from 'axios';
+import { api } from '../api/axios';
 import type { Movie } from '../types/movie';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const API_TOKEN = import.meta.env.VITE_TMDB_TOKEN;
 
 export interface FetchMoviesResponse {
   page: number;
@@ -14,16 +11,26 @@ export interface FetchMoviesResponse {
 export async function fetchMovies(
   query: string,
   page = 1
-): Promise<Movie[]> {
-  const response = await axios.get<FetchMoviesResponse>(
-    `${API_BASE_URL}/search/movie`,
-    {
-      headers: {
-        Authorization: `Bearer ${API_TOKEN}`,
-      },
-      params: { query, page },
-    }
-  );
+): Promise<FetchMoviesResponse> {
+  const API_TOKEN = import.meta.env.VITE_TMDB_TOKEN;
 
-  return response.data.results;
+  if (!API_TOKEN) {
+    throw new Error('TMDB token is missing in environment variables');
+  }
+
+  const config = {
+    headers: {
+      Authorization: `Bearer ${API_TOKEN}`,
+      accept: 'application/json',
+    },
+    params: {
+      query,
+      page,
+      include_adult: false,
+      language: 'en-US',
+    },
+  };
+
+  const response = await api.get<FetchMoviesResponse>('/search/movie', config);
+  return response.data;
 }
