@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Toaster } from 'react-hot-toast';
+import { Toaster, toast } from 'react-hot-toast';
 import ReactPaginate from 'react-paginate';
 
 import { SearchBar } from '../SearchBar/SearchBar';
@@ -18,10 +18,18 @@ const App = () => {
   const [page, setPage] = useState(1);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
-  const { data, isLoading, isError } = useQuery({
+  const {
+    data,
+    isLoading,
+    isError,
+    isFetching,
+    isSuccess,
+  } = useQuery({
     queryKey: ['movies', query, page],
     queryFn: () => fetchMovies(query, page),
-    enabled: !!query, 
+    enabled: !!query,
+    placeholderData: (prev) => prev, 
+    keepPreviousData: true, 
   });
 
   const movies = data?.results ?? [];
@@ -29,22 +37,29 @@ const App = () => {
 
   const handleSearch = (newQuery: string) => {
     setQuery(newQuery);
-    setPage(1); 
+    setPage(1);
   };
 
   const handleSelectMovie = (movie: Movie) => setSelectedMovie(movie);
   const handleCloseModal = () => setSelectedMovie(null);
 
+ 
+  useEffect(() => {
+    if (isSuccess && movies.length === 0) {
+      toast.error('No movies found for your request.');
+    }
+  }, [isSuccess, movies.length]);
+
   return (
     <>
       <SearchBar onSubmit={handleSearch} />
 
-      {isLoading && <Loader />}
+      {(isLoading || isFetching) && <Loader />}
       {isError && <ErrorMessage />}
-      {!isLoading && !isError && movies.length > 0 && (
-        <>
-          
 
+      {isSuccess && movies.length > 0 && (
+        <>
+          {}
           {totalPages > 1 && (
             <ReactPaginate
               pageCount={totalPages}
@@ -57,8 +72,8 @@ const App = () => {
               nextLabel="→"
               previousLabel="←"
             />
-            
           )}
+
           <MovieGrid movies={movies} onSelect={handleSelectMovie} />
         </>
       )}
@@ -73,3 +88,4 @@ const App = () => {
 };
 
 export default App;
+
