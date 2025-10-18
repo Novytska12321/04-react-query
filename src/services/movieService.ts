@@ -1,5 +1,6 @@
-import { api } from '../api/axios';
+import axios from 'axios';
 import type { Movie } from '../types/movie';
+
 
 export interface FetchMoviesResponse {
   page: number;
@@ -8,29 +9,33 @@ export interface FetchMoviesResponse {
   total_results: number;
 }
 
-export async function fetchMovies(
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_TOKEN = import.meta.env.VITE_TMDB_TOKEN;
+
+
+export const api = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 10000,
+  headers: {
+    Authorization: `Bearer ${API_TOKEN}`,
+    Accept: 'application/json',
+  },
+});
+
+
+export const fetchMovies = async (
   query: string,
   page = 1
-): Promise<FetchMoviesResponse> {
-  const API_TOKEN = import.meta.env.VITE_TMDB_TOKEN;
-
-  if (!API_TOKEN) {
-    throw new Error('TMDB token is missing in environment variables');
+): Promise<FetchMoviesResponse> => {
+  if (!query) {
+    return { page: 1, results: [], total_pages: 0, total_results: 0 };
   }
 
-  const config = {
-    headers: {
-      Authorization: `Bearer ${API_TOKEN}`,
-      accept: 'application/json',
-    },
-    params: {
-      query,
-      page,
-      include_adult: false,
-      language: 'en-US',
-    },
-  };
+  const response = await api.get<FetchMoviesResponse>('/search/movie', {
+    params: { query, page, include_adult: false, language: 'en-US' },
+  });
 
-  const response = await api.get<FetchMoviesResponse>('/search/movie', config);
   return response.data;
-}
+};
+
+

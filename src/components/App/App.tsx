@@ -10,6 +10,7 @@ import { ErrorMessage } from '../ErrorMessage/ErrorMessage';
 import { MovieModal } from '../MovieModal/MovieModal';
 import { fetchMovies } from '../../services/movieService';
 import type { Movie } from '../../types/movie';
+import type { FetchMoviesResponse } from '../../services/movieService';
 
 import css from './App.module.css';
 
@@ -24,12 +25,11 @@ const App = () => {
     isError,
     isFetching,
     isSuccess,
-  } = useQuery({
+  } = useQuery<FetchMoviesResponse, Error>({
     queryKey: ['movies', query, page],
     queryFn: () => fetchMovies(query, page),
     enabled: !!query,
-    placeholderData: (prev) => prev, 
-    keepPreviousData: true, 
+    placeholderData: (prev) => prev,
   });
 
   const movies = data?.results ?? [];
@@ -43,7 +43,6 @@ const App = () => {
   const handleSelectMovie = (movie: Movie) => setSelectedMovie(movie);
   const handleCloseModal = () => setSelectedMovie(null);
 
- 
   useEffect(() => {
     if (isSuccess && movies.length === 0) {
       toast.error('No movies found for your request.');
@@ -59,7 +58,6 @@ const App = () => {
 
       {isSuccess && movies.length > 0 && (
         <>
-          {}
           {totalPages > 1 && (
             <ReactPaginate
               pageCount={totalPages}
@@ -73,7 +71,6 @@ const App = () => {
               previousLabel="←"
             />
           )}
-
           <MovieGrid movies={movies} onSelect={handleSelectMovie} />
         </>
       )}
@@ -88,4 +85,3 @@ const App = () => {
 };
 
 export default App;
-
