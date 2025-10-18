@@ -8,10 +8,7 @@ interface MovieModalProps {
   onClose: () => void;
 }
 
-const modalRoot = document.getElementById('modal-root') as HTMLElement;
-
 export const MovieModal = ({ movie, onClose }: MovieModalProps) => {
-  
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -20,15 +17,14 @@ export const MovieModal = ({ movie, onClose }: MovieModalProps) => {
     };
 
     document.addEventListener('keydown', handleEsc);
-    document.body.style.overflow = 'hidden'; 
+    document.body.style.overflow = 'hidden';
 
     return () => {
       document.removeEventListener('keydown', handleEsc);
-      document.body.style.overflow = ''; 
+      document.body.style.overflow = '';
     };
   }, [onClose]);
 
-  
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.currentTarget === e.target) {
       onClose();
@@ -67,6 +63,6 @@ export const MovieModal = ({ movie, onClose }: MovieModalProps) => {
         </div>
       </div>
     </div>,
-    modalRoot
+    document.body 
   );
 };
